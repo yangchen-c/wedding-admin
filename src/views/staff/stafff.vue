@@ -24,7 +24,8 @@
               type="primary"
               @click="getEditData(scope.row)"
             >编辑</el-button>
-            <el-button size="mini" icon="el-icon-user" type="danger" @click="delData(scope.row)">删除</el-button>
+            <el-button size="mini" icon="el-icon-delete" type="danger" @click="delData(scope.row)">删除</el-button>
+            <el-button size="mini" icon="el-icon-user" type="success" @click="jump(scope.row.id)">工资</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -143,6 +144,11 @@ export default {
             })
           })
       }
+    },
+    // 工资跳转
+    jump(id) {
+      console.log(id)
+      this.$router.push({ name: 'wages', params: { id: id }})
     },
     // 删除
     delData(row) {

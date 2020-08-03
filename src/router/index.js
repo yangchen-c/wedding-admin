@@ -223,6 +223,41 @@ export const constantRouterMap = [
       }
     ]
   },
+  // yc财务管理
+  {
+    path: '/balance',
+    component: Layout,
+    redirect: 'noredirect',
+    alwaysShow: true,
+    name: 'balance',
+    meta: {
+      title: '财务管理',
+      icon: 'goods_type'
+    },
+    children: [
+      {
+        path: 'collect',
+        component: () => import('@/views/balance/collect'),
+        name: 'collect',
+        meta: {
+          // perms: ['GET /admin/user/list'],
+          title: '收支列表',
+          icon: 'brand'
+          // affix: true
+        }
+      }, {
+        path: 'money',
+        component: () => import('@/views/balance/money'),
+        name: 'money',
+        meta: {
+          // perms: ['GET /admin/user/list'],
+          title: '财务统计',
+          icon: 'goods_type'
+          // affix: true
+        }
+      }
+    ]
+  },
   // yc end
   // {
   //   path: '/banner',

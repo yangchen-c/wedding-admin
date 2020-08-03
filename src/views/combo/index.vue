@@ -31,7 +31,7 @@
     <div class="tablee">
       <el-table :data="tableData" border style="width: 100%">
         <el-table-column align="center" prop="id" label="ID" width="50" />
-        <el-table-column align="center" prop="classify.name" label="套餐名称" width="100" />
+        <el-table-column align="center" prop="name" label="套餐名称" width="100" />
         <el-table-column align="center" prop="price" label="套餐价格" width="70" />
         <el-table-column align="center" prop="classify.paper" label="套餐小介绍" />
         <el-table-column align="center" prop="store.name" label="所属门店" />
@@ -69,7 +69,7 @@
     <el-dialog :title="title1" :visible.sync="dialogFormVisible">
       <el-form :model="form">
         <el-form-item label="套餐名称" :label-width="formLabelWidth">
-          <el-input v-model="form.classify.name" placeholder="请输入套餐名称" style="width:400px" />
+          <el-input v-model="form.name" placeholder="请输入套餐名称" style="width:400px" />
         </el-form-item>
         <el-form-item label="套餐价格" :label-width="formLabelWidth">
           <el-input v-model="form.price" placeholder="请输入套餐价格" style="width:400px" />
@@ -198,12 +198,14 @@ export default {
           paper: ''
         },
         store: {
+          id: '',
           name: ''
         },
         // id: '',
         price: '',
         cover: '',
-        banner: ''
+        banner: '',
+        name: ''
       },
       formLabelWidth: '120px',
       title1: ''
@@ -252,20 +254,22 @@ export default {
     addShop() {
       this.dialogFormVisible = true
       this.title1 = '新建分类'
-      this.form.classify.name = ''
+      this.form.name = ''
       this.form.price = ''
       this.form.classify.paper = ''
       this.form.value = ''
       this.form.value3 = ''
       this.form.cover = ''
+      this.form.classify.id = ''
     },
     // 编辑
     getEditData(data) {
       this.dialogFormVisible = true
       this.title1 = '编辑分类'
-      this.form.classify.name = data.classify.name
+      this.form.name = data.name
       this.form.price = data.price
       this.form.classify.paper = data.classify.paper
+      this.form.classify.id = data.id
       this.form.value = data.value
       this.form.value3 = data.value3
       this.form.cover = data.cover
@@ -293,6 +297,7 @@ export default {
           })
       } else {
         comboAdd(this.form)
+          // comboAdd(JSON.stringify(this.form))
           .then(() => {
             this.$notify.success({
               title: '成功',

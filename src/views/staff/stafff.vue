@@ -12,10 +12,15 @@
     </div>
     <div class="tablee">
       <el-table :data="tableData" border style="width: 100%">
-        <el-table-column align="center" prop="id" label="ID" width="50" />
+        <el-table-column align="center" label="序号" width="50" type="index">
+          <!-- <template slot-scope="scope">
+            <span>{{ scope.$index+(page - 1) * limit + 1 }}</span>
+          </template> -->
+        </el-table-column>
+        <!-- <el-table-column align="center" prop="id" label="ID" width="50" /> -->
         <el-table-column align="center" prop="name" label="员工名称" />
         <el-table-column align="center" prop="phone" label="联系方式" />
-        <el-table-column align="center" prop="remark" label="职位" />
+        <el-table-column align="center" prop="position.name" label="职位" />
         <el-table-column align="center" label="操作">
           <template slot-scope="scope">
             <el-button
@@ -24,7 +29,12 @@
               type="primary"
               @click="getEditData(scope.row)"
             >编辑</el-button>
-            <el-button size="mini" icon="el-icon-delete" type="danger" @click="delData(scope.row)">删除</el-button>
+            <el-button
+              size="mini"
+              icon="el-icon-delete"
+              type="danger"
+              @click="delData(scope.row)"
+            >删除</el-button>
             <el-button size="mini" icon="el-icon-user" type="success" @click="jump(scope.row.id)">工资</el-button>
           </template>
         </el-table-column>
@@ -40,7 +50,20 @@
           <el-input v-model="form.phone" placeholder="请输入联系方式" style="width:400px" />
         </el-form-item>
         <el-form-item label="员工职位" :label-width="formLabelWidth">
-          <el-input placeholder="请输入职位名称" style="width:400px" />
+          <!-- <el-input placeholder="请输入职位名称" style="width:400px" /> -->
+          <el-select
+            v-model="form.position.id"
+            clearable
+            placeholder="请选择"
+            @change="changeOrder($event)"
+          >
+            <el-option
+              v-for="item in tableData1"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="底薪" :label-width="formLabelWidth">
           <el-input v-model="form.salary" placeholder="请输入底薪" style="width:400px" />
@@ -55,7 +78,13 @@
 </template>
 
 <script>
-import { staffList, staffAdd, staffUpdate, staffDelete } from '@/api/api'
+import {
+  positionList,
+  staffList,
+  staffAdd,
+  staffUpdate,
+  staffDelete
+} from '@/api/api'
 
 export default {
   name: 'Stafff',
@@ -66,20 +95,39 @@ export default {
       title1: '',
       // 表格数据
       tableData: [],
+      tableData1: [],
       dialogFormVisible: false,
       form: {
         name: '',
         id: '',
         phone: '',
-        salary: ''
+        salary: '',
+        position: {
+          id: ''
+        }
       },
       formLabelWidth: '100px'
     }
   },
   created() {
     this.getList()
+    this.getPositionList()
   },
   methods: {
+    // select下拉事件
+    changeOrder(val) {
+      // console.log(val)
+    },
+    // 获取职位
+    getPositionList() {
+      positionList()
+        .then((response) => {
+          this.tableData1 = response.data.data
+        })
+        .catch(() => {
+          this.tableData1 = []
+        })
+    },
     // 获取数据
     getList() {
       staffList({ name: this.name })
@@ -98,6 +146,7 @@ export default {
       this.form.id = ''
       this.form.phone = ''
       this.form.salary = ''
+      this.form.position.id = ''
     },
     // 编辑
     getEditData(data) {
@@ -107,6 +156,7 @@ export default {
       this.form.id = data.id
       this.form.phone = data.phone
       this.form.salary = data.salary
+      this.form.position.id = data.position.id
     },
     // 编辑新增确定事件
     addSubmit() {

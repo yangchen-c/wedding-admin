@@ -260,21 +260,39 @@
           </el-col>
           <el-col :span="7" class="give1">
             <div>相册(尺寸)</div>
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
+            <div>
+              <input v-model="form.gift1[0]" type="text">
+            </div>
+            <div>
+              <input v-model="form.gift2[0]" type="text">
+            </div>
+            <div>
+              <input v-model="form.gift3[0]" type="text">
+            </div>
           </el-col>
           <el-col :span="7" class="give1">
             <div>放大(尺寸)</div>
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
+            <div>
+              <input v-model="form.gift1[1]" type="text">
+            </div>
+            <div>
+              <input v-model="form.gift2[1]" type="text">
+            </div>
+            <div>
+              <input v-model="form.gift3[1]" type="text">
+            </div>
           </el-col>
           <el-col :span="7" class="give2">
             <div>其他产品(尺寸)</div>
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
+            <div>
+              <input v-model="form.gift1[2]" type="text">
+            </div>
+            <div>
+              <input v-model="form.gift2[2]" type="text">
+            </div>
+            <div>
+              <input v-model="form.gift3[2]" type="text">
+            </div>
           </el-col>
         </el-row>
         <!-- 拍摄内容 -->
@@ -305,9 +323,18 @@
           </el-col>
           <el-col :span="21" class="like1">
             <div>
-              <span>喜欢风格描述：<input v-model="form.style" type="text"></span>
-              <span>对拍摄的特殊要求：<input v-model="form.special" type="text"></span>
-              <span>有无照片参考：<input v-model="form.photo" type="text"></span>
+              <span>
+                喜欢风格描述：
+                <input v-model="form.style" type="text">
+              </span>
+              <span>
+                对拍摄的特殊要求：
+                <input v-model="form.special" type="text">
+              </span>
+              <span>
+                有无照片参考：
+                <input v-model="form.photo" type="text">
+              </span>
             </div>
           </el-col>
         </el-row>
@@ -424,7 +451,10 @@ export default {
         include: '',
         style: '',
         special: '',
-        photo: ''
+        photo: '',
+        gift1: '',
+        gift2: '',
+        gift3: ''
       },
       options: [
         {
@@ -474,14 +504,14 @@ export default {
   methods: {
     // select下拉事件
     changeOrder(val) {
-      console.log(val)
+      // console.log(val)
     },
     // 获取套系数据
     getComboList() {
       comboList()
         .then((response) => {
           this.optionsCombo = response.data.data
-          console.log(this.optionsCombo)
+          // console.log(this.optionsCombo)
         })
         .catch(() => {
           this.optionsCombo = []
@@ -526,10 +556,13 @@ export default {
       this.form.style = ''
       this.form.special = ''
       this.form.photo = ''
+      this.form.gift1 = ''
+      this.form.gift2 = ''
+      this.form.gift3 = ''
     },
     // 编辑
     getEditData(data) {
-      // console.log(this.form.id)
+      // console.log(this.form.gift1)
       this.dialogFormVisible = true
       this.form.id = data.id
       this.form.name = data.name
@@ -559,12 +592,19 @@ export default {
       this.form.style = data.style
       this.form.special = data.special
       this.form.photo = data.photo
+      this.form.gift1 = data.gift1.split('&|&')
+      // this.form.gift1 = this.form.gift1.join('&|&')
+      this.form.gift2 = data.gift2.split('&|&')
+      this.form.gift3 = data.gift3.split('&|&')
     },
     // 编辑新增确定事件
     addSubmit() {
+      // console.log(this.form)
+      this.form.gift1 = this.form.gift1.join('&|&')
+      this.form.gift2 = this.form.gift2.join('&|&')
+      this.form.gift3 = this.form.gift3.join('&|&')
       if (this.form.id) {
         customerUpdate(this.form)
-          // customerUpdate(JSON.stringify(this.form))
           .then(() => {
             this.$notify.success({
               title: '成功',
@@ -581,7 +621,6 @@ export default {
           })
       } else {
         customerAdd(this.form)
-          // customerAdd(JSON.stringify(this.form))
           .then(() => {
             this.$notify.success({
               title: '成功',
@@ -644,15 +683,19 @@ export default {
   .tablee {
     margin-top: 20 / @rem;
   }
+  input {
+    border: none;
+    outline: medium;
+  }
   .content1 input {
     width: 80%;
-    border:none;
-    outline:medium;
+    border: none;
+    outline: medium;
   }
   .like1 input {
     // width: 80%;
-    border:none;
-    outline:medium;
+    border: none;
+    outline: medium;
   }
   .card {
     border: 2 / @rem solid #cccccc;

@@ -2,7 +2,7 @@
   <div id="app">
     <div class="btn">
       <el-button type="primary" @click="addShop">新建</el-button>
-      <el-button type="info">导出表格</el-button>
+      <el-button type="info" @click="handleDownload">导出表格</el-button>
       <el-select v-model="value" clearable placeholder="选择门店">
         <el-option
           v-for="item in options"
@@ -11,7 +11,7 @@
           :value="item.value"
         />
       </el-select>
-      <el-select v-model="valueState" clearable placeholder="选择状态">
+      <el-select v-model="valueState" clearable placeholder="选择状态" @change="changeState($event)">
         <el-option
           v-for="item in optionsState"
           :key="item.value"
@@ -20,18 +20,20 @@
         />
       </el-select>
       <el-date-picker v-model="value1" type="date" placeholder="请选择拍摄日期" />
+      <el-input v-model="tel" placeholder="请输入手机号" clearable style="width:180px;margin-left:50px" />
       <el-input
-        v-model="input"
-        placeholder="请输入手机号"
+        v-model="name"
+        placeholder="请输入客户名称"
         clearable
-        style="width:180px;margin-left:50px"
+        style="width:180px"
+        @keyup.enter.native="getList"
       />
-      <el-input v-model="input1" placeholder="请输入客户名称" clearable style="width:180px" />
-      <el-button type="primary">搜索</el-button>
+      <el-button type="primary" @click="getList()">搜索</el-button>
     </div>
     <div class="tablee">
       <el-table :data="tableData" border style="width: 100%">
-        <el-table-column align="center" prop="id" label="ID" width="50" />
+        <el-table-column align="center" type="index" label="序号" width="50" />
+        <!-- <el-table-column align="center" prop="id" label="ID" width="50" /> -->
         <el-table-column align="center" prop="name" label="名称" width="80" />
         <el-table-column align="center" prop="phone" label="联系电话" width="130" />
         <el-table-column align="center" prop="address" label="家庭住址" width="200" />
@@ -40,23 +42,11 @@
         <el-table-column align="center" prop="payment" label="订单金额" />
         <el-table-column align="center" prop="state" label="状态">
           <template slot-scope="scope">
-            <span
-              v-if="scope.row.state == '0' && scope.row.shootTime == ''"
-              style="color:#67C23A"
-            >待确定拍摄日期</span>
-            <span
-              v-if="scope.row.shootTime !== ''&& scope.row.selectTime == ''"
-              style="color:#4B0082"
-            >待拍摄</span>
-            <span
-              v-if="scope.row.selectTime !== '' && scope.row.finalizeTime == ''"
-              style="color:#f78989"
-            >选片中</span>
-            <span
-              v-if="scope.row.finalizeTime !== '' && scope.row.deliveryTime == ''"
-              style="color:#409EFF"
-            >设计中</span>
-            <span v-if="scope.row.deliveryTime !== ''" style="color:#006400">制作中</span>
+            <span v-if="scope.row.state == '0'" style="color:#67C23A">待确定拍摄日期</span>
+            <span v-if="scope.row.state == '1'" style="color:#4B0082">待拍摄</span>
+            <span v-if="scope.row.state == '2'" style="color:#f78989">选片中</span>
+            <span v-if="scope.row.state == '3'" style="color:#409EFF">设计中</span>
+            <span v-if="scope.row.state == '4'" style="color:#006400">制作中</span>
             <!-- <span v-if="scope.row.state == '4'" style="color:#409EFF">制作中</span> -->
           </template>
         </el-table-column>
@@ -103,12 +93,12 @@
           <el-date-picker v-model="form.subscribeTime" type="date" placeholder="选择日期" />
         </el-form-item>
         <el-form-item label="选择客户顾问">
-          <el-select v-model="value3" clearable placeholder="请选择">
+          <el-select v-model="form.customerConsultant.id" clearable placeholder="请选择">
             <el-option
-              v-for="item in options3"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in customerConsultant1"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -127,12 +117,12 @@
           <el-date-picker v-model="form.shootTime" type="date" placeholder="选择日期" />
         </el-form-item>
         <el-form-item label="请选择摄影师">
-          <el-select v-model="value3" clearable placeholder="请选择">
+          <el-select v-model="form.photographer.id" clearable placeholder="请选择">
             <el-option
-              v-for="item in options3"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in photographer1"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -151,12 +141,12 @@
           <el-date-picker v-model="form.selectTime" type="date" placeholder="选择日期" />
         </el-form-item>
         <el-form-item label="请选择设计师">
-          <el-select v-model="value3" clearable placeholder="请选择">
+          <el-select v-model="form.designer.id" clearable placeholder="请选择">
             <el-option
-              v-for="item in options3"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in designer1"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -170,13 +160,8 @@
           <el-date-picker v-model="form.finalizeTime" type="date" placeholder="选择日期" />
         </el-form-item>
         <el-form-item label="请选择化妆师">
-          <el-select v-model="value3" clearable placeholder="请选择">
-            <el-option
-              v-for="item in options3"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
+          <el-select v-model="form.dresser.id" clearable placeholder="请选择">
+            <el-option v-for="item in dresser1" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item label="提成比例">
@@ -208,12 +193,12 @@
           />
         </el-form-item>
         <el-form-item label="请选择助理一">
-          <el-select v-model="value3" clearable placeholder="请选择">
+          <el-select v-model="form.firstAid.id" clearable placeholder="请选择">
             <el-option
-              v-for="item in options3"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in firstAid1"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -229,18 +214,21 @@
           <el-date-picker v-model="form.weddingTime" type="date" placeholder="选择日期" />
         </el-form-item>
         <el-form-item label="请选择助理二">
-          <el-select v-model="value3" clearable placeholder="请选择">
+          <el-select v-model="form.secondAid.id" clearable placeholder="请选择">
             <el-option
-              v-for="item in options3"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in secondAid1"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
         <el-form-item label="提成比例">
           <el-input v-model="form.secondAidCommission" placeholder="请输入提成比例" style="width:200px" />
         </el-form-item>
+        <!-- <el-form-item label="状态">
+          <el-input v-model="form.state" style="width:200px" />
+        </el-form-item>-->
         <el-form-item label="制作说明">
           <el-input
             v-model="form.remark"
@@ -403,6 +391,7 @@
 
 <script>
 import {
+  staffList, // 获取职位下员工详细
   comboList,
   customerList,
   customerAdd,
@@ -421,9 +410,12 @@ export default {
       dialogFormVisible: false,
       title1: '',
       name: '',
+      tel: '',
       value: '',
       valueState: '',
+      // state: '0',
       form: {
+        state: '0',
         id: '',
         name: '',
         phone: '',
@@ -431,6 +423,24 @@ export default {
         networkService: '',
         payment: '',
         combo: {
+          id: ''
+        },
+        customerConsultant: {
+          id: ''
+        },
+        photographer: {
+          id: ''
+        },
+        designer: {
+          id: ''
+        },
+        dresser: {
+          id: ''
+        },
+        firstAid: {
+          id: ''
+        },
+        secondAid: {
           id: ''
         },
         remark: '',
@@ -468,22 +478,24 @@ export default {
       ],
       optionsState: [
         {
-          value: '选项1',
+          value: 'state1',
+          label: '待确定拍摄日期'
+        },
+        {
+          value: 'state2',
           label: '待拍摄'
         },
         {
-          value: '选项2',
+          value: 'state3',
           label: '选片中'
-        }
-      ],
-      options3: [
-        {
-          value: '选项1',
-          label: '客户顾问1'
         },
         {
-          value: '选项2',
-          label: '2'
+          value: 'state4',
+          label: '设计中'
+        },
+        {
+          value: 'state5',
+          label: '制作中'
         }
       ],
       optionsCombo: [],
@@ -494,17 +506,64 @@ export default {
       input: '', // 手机号
       input1: '', // 客户名称
       // 表格数据
-      tableData: []
+      tableData: [],
+      staffData: [],
+      customerConsultant1: [], // 客户顾问
+      photographer1: [], // 摄影师
+      designer1: [], // 设计师
+      dresser1: [], // 化妆师
+      firstAid1: [], // 助理一
+      secondAid1: [] // 助理二
     }
   },
   created() {
     this.getList()
     this.getComboList()
+    this.getStaffList()
   },
   methods: {
     // select下拉事件
     changeOrder(val) {
       // console.log(val)
+    },
+    changeState(val) {
+      if (val === 'state1') {
+        this.tableData = this.tableDataAll.filter((el) => el.state === 0)
+      } else if (val === 'state2') {
+        this.tableData = this.tableDataAll.filter((el) => el.state === 1)
+      } else if (val === 'state3') {
+        this.tableData = this.tableDataAll.filter((el) => el.state === 2)
+      } else if (val === 'state4') {
+        this.tableData = this.tableDataAll.filter((el) => el.state === 3)
+      } else if (val === 'state5') {
+        this.tableData = this.tableDataAll.filter((el) => el.state === 4)
+      } else if (val === '') {
+        this.tableData = this.tableDataAll
+      }
+    },
+    // 获取职位下员工详细
+    getStaffList() {
+      const params = {
+        name: this.name !== '' ? this.name : undefined
+      }
+      // staffList({ name: this.name })
+      staffList(params)
+        .then((response) => {
+          this.staffData = response.data.data
+          this.customerConsultant1 = this.staffData.filter(
+            (el) => el.position.id === 2
+          )
+          this.photographer1 = this.staffData.filter(
+            (el) => el.position.id === 4
+          )
+          this.designer1 = this.staffData.filter((el) => el.position.id === 5)
+          this.dresser1 = this.staffData.filter((el) => el.position.id === 6)
+          this.firstAid1 = this.staffData.filter((el) => el.position.id === 7)
+          this.secondAid1 = this.staffData.filter((el) => el.position.id === 7)
+        })
+        .catch(() => {
+          this.staffData = []
+        })
     },
     // 获取套系数据
     getComboList() {
@@ -518,9 +577,14 @@ export default {
         })
     },
     getList() {
-      customerList({ name: this.name })
+      const params = {
+        name: this.name !== '' ? this.name : undefined
+      }
+      // customerList({ name: this.name })
+      customerList(params)
         .then((response) => {
           this.tableData = response.data.data
+          this.tableDataAll = response.data.data
         })
         .catch(() => {
           this.tableData = []
@@ -529,6 +593,7 @@ export default {
     // 新建
     addShop() {
       this.dialogFormVisible = true
+      this.form.state = '0'
       this.form.id = ''
       this.form.name = ''
       this.form.phone = ''
@@ -536,6 +601,12 @@ export default {
       this.form.networkService = ''
       this.form.payment = ''
       this.form.combo.id = ''
+      this.form.customerConsultant.id = ''
+      this.form.photographer.id = ''
+      this.form.designer.id = ''
+      this.form.dresser.id = ''
+      this.form.firstAid.id = ''
+      this.form.secondAid.id = ''
       this.form.remark = ''
       this.title1 = '新增收支'
       this.form.subscribeTime = ''
@@ -556,14 +627,15 @@ export default {
       this.form.style = ''
       this.form.special = ''
       this.form.photo = ''
-      this.form.gift1 = ''
-      this.form.gift2 = ''
-      this.form.gift3 = ''
+      this.form.gift1 = '0&|&0&|&0'.split('&|&')
+      this.form.gift2 = '0&|&0&|&0'.split('&|&')
+      this.form.gift3 = '0&|&0&|&0'.split('&|&')
     },
     // 编辑
     getEditData(data) {
       // console.log(this.form.gift1)
       this.dialogFormVisible = true
+      this.form.state = data.state
       this.form.id = data.id
       this.form.name = data.name
       this.form.phone = data.phone
@@ -571,6 +643,12 @@ export default {
       this.form.networkService = data.networkService
       this.form.payment = data.payment
       this.form.combo.id = data.combo.id
+      this.form.customerConsultant.id = data.customerConsultant.id
+      this.form.photographer.id = data.photographer.id
+      this.form.designer.id = data.designer.id
+      this.form.dresser.id = data.dresser.id
+      this.form.firstAid.id = data.firstAid.id
+      this.form.secondAid.id = data.secondAid.id
       this.form.remark = data.remark
       this.title1 = '编辑客户'
       this.form.subscribeTime = data.subscribeTime
@@ -600,10 +678,28 @@ export default {
     // 编辑新增确定事件
     addSubmit() {
       // console.log(this.form)
-      this.form.gift1 = this.form.gift1.join('&|&')
-      this.form.gift2 = this.form.gift2.join('&|&')
-      this.form.gift3 = this.form.gift3.join('&|&')
+
       if (this.form.id) {
+        this.form.gift1 = this.form.gift1.join('&|&')
+        this.form.gift2 = this.form.gift2.join('&|&')
+        this.form.gift3 = this.form.gift3.join('&|&')
+        if (this.form.shootTime === '') {
+          this.form.state = '0'
+        } else if (this.form.shootTime !== '' && this.form.selectTime === '') {
+          this.form.state = '1'
+        } else if (
+          this.form.selectTime !== '' &&
+          this.form.finalizeTime === ''
+        ) {
+          this.form.state = '2'
+        } else if (
+          this.form.finalizeTime !== '' &&
+          this.form.deliveryTime === ''
+        ) {
+          this.form.state = '3'
+        } else if (this.form.deliveryTime !== '') {
+          this.form.state = '4'
+        }
         customerUpdate(this.form)
           .then(() => {
             this.$notify.success({
@@ -620,6 +716,26 @@ export default {
             })
           })
       } else {
+        this.form.gift1 = this.form.gift1.join('&|&')
+        this.form.gift2 = this.form.gift2.join('&|&')
+        this.form.gift3 = this.form.gift3.join('&|&')
+        if (this.form.shootTime === '') {
+          this.form.state = '0'
+        } else if (this.form.shootTime !== '' && this.form.selectTime === '') {
+          this.form.state = '1'
+        } else if (
+          this.form.selectTime !== '' &&
+          this.form.finalizeTime === ''
+        ) {
+          this.form.state = '2'
+        } else if (
+          this.form.finalizeTime !== '' &&
+          this.form.deliveryTime === ''
+        ) {
+          this.form.state = '3'
+        } else if (this.form.deliveryTime !== '') {
+          this.form.state = '4'
+        }
         customerAdd(this.form)
           .then(() => {
             this.$notify.success({
@@ -669,6 +785,39 @@ export default {
             message: '已取消删除'
           })
         })
+    },
+    // 导出表格
+    handleDownload() {
+      //   this.downloadLoading = true
+      import('@/vendor/Export2Excel').then((excel) => {
+        const tHeader = [
+          'ID',
+          '名称',
+          '联系电话',
+          '家庭住址',
+          '门店',
+          '订单类别',
+          '订单金额',
+          '交付日期'
+        ]
+        const filterVal = [
+          'id',
+          'name',
+          'phone',
+          'address',
+          'store',
+          'address',
+          'payment',
+          'deliveryTime'
+        ]
+        excel.export_json_to_excel2(
+          tHeader,
+          this.tableData,
+          filterVal,
+          '客户管理'
+        )
+        this.downloadLoading = false
+      })
     }
   }
 }

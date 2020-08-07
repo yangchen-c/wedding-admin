@@ -65,6 +65,21 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item label="所属门店" :label-width="formLabelWidth">
+          <!-- @change="changeOrder($event)" -->
+          <el-select
+            v-model="form.store.id"
+            clearable
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in optionsShop"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="底薪" :label-width="formLabelWidth">
           <el-input v-model="form.salary" placeholder="请输入底薪" style="width:400px" />
         </el-form-item>
@@ -79,6 +94,7 @@
 
 <script>
 import {
+  shopList,
   positionList,
   staffList,
   staffAdd,
@@ -96,6 +112,7 @@ export default {
       // 表格数据
       tableData: [],
       tableData1: [],
+      optionsShop: [], // 门店数据
       dialogFormVisible: false,
       form: {
         name: '',
@@ -104,6 +121,10 @@ export default {
         salary: '',
         position: {
           id: ''
+        },
+        store: {
+          id: '',
+          name: ''
         }
       },
       formLabelWidth: '100px'
@@ -112,6 +133,7 @@ export default {
   created() {
     this.getList()
     this.getPositionList()
+    this.getShopList()
   },
   methods: {
     // select下拉事件
@@ -126,6 +148,16 @@ export default {
         })
         .catch(() => {
           this.tableData1 = []
+        })
+    },
+    // 获取门店数据
+    getShopList() {
+      shopList()
+        .then((response) => {
+          this.optionsShop = response.data.data
+        })
+        .catch(() => {
+          this.optionsShop = []
         })
     },
     // 获取数据
@@ -147,6 +179,8 @@ export default {
       this.form.phone = ''
       this.form.salary = ''
       this.form.position.id = ''
+      this.form.store.id = ''
+      this.form.store.name = ''
     },
     // 编辑
     getEditData(data) {
@@ -157,6 +191,8 @@ export default {
       this.form.phone = data.phone
       this.form.salary = data.salary
       this.form.position.id = data.position.id
+      this.form.store.id = data.store.id
+      this.form.store.name = data.store.name
     },
     // 编辑新增确定事件
     addSubmit() {

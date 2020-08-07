@@ -2,13 +2,8 @@
   <div id="app">
     <div class="btn">
       <el-button type="primary" @click="addShop">新建</el-button>
-      <el-select v-model="value" clearable placeholder="所属门店">
-        <el-option
-          v-for="item in options"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
+      <el-select v-model="form.store.id" clearable placeholder="所属门店" @change="changeOrder($event)">
+        <el-option v-for="item in optionsShop" :key="item.id" :label="item.name" :value="item.id" />
       </el-select>
       <el-date-picker v-model="value1" type="date" placeholder="选择日期" />
       <el-select v-model="value2" clearable placeholder="选择状态">
@@ -78,12 +73,12 @@
           <el-input v-model="form.classify.paper" placeholder="请输入套餐小介绍" style="width:400px" />
         </el-form-item>
         <el-form-item label="所属门店" :label-width="formLabelWidth">
-          <el-select v-model="value" clearable placeholder="选择门店">
+          <el-select v-model="form.store.id" clearable placeholder="选择门店">
             <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in optionsShop"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -114,6 +109,40 @@
         </el-form-item>
         <el-form-item label="轮播图片" :label-width="formLabelWidth">
           <el-upload
+            :action="uploadPath"
+            :headers="headers"
+            :on-exceed="uploadOverrun1"
+            :on-success="handleGalleryUrl1"
+            :on-remove="handleRemove1"
+            multiple
+            accept=".jpg, .jpeg, .png, .gif"
+            list-type="picture-card"
+            :file-list="form.banner"
+          >
+            <i class="el-icon-plus" />
+          </el-upload>
+          <!-- <el-upload
+            :headers="headers"
+            :on-success="uploadUrls"
+            :action="uploadPath"
+            :before-upload="checkFileSize"
+            list-type="picture-card"
+            :auto-upload="false"
+            accept=".jpg, .jpeg, .png"
+          >-->
+          <!-- <el-upload
+            :headers="headers"
+            :on-success="uploadUrls"
+            :action="uploadPath"
+            :before-upload="checkFileSize"
+            :show-file-list="false"
+            class="avatar-uploader"
+            accept=".jpg, .jpeg, .png"
+          >
+            <img v-if="form.banner" class="avatar" :src="form.banner">
+            <i v-else class="el-icon-plus avatar-uploader-icon" />
+          </el-upload>-->
+          <!-- <el-upload
             :headers="headers"
             :action="uploadPath"
             :show-file-list="false"
@@ -125,7 +154,7 @@
             <img v-if="form.banner" :src="form.banner" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon" />
             <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过1024kb</div>
-          </el-upload>
+          </el-upload>-->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -138,6 +167,7 @@
 
 <script>
 import {
+  shopList,
   comboList,
   comboAdd,
   comboUpdate,
@@ -150,6 +180,9 @@ export default {
   name: 'Combo',
   data() {
     return {
+      dialogImageUrl: '',
+      dialogVisible: false,
+      disabled: false,
       options: [
         {
           value: '选项1',
@@ -190,6 +223,7 @@ export default {
       name: '', // 门店名称
       // 表格数据
       tableData: [],
+      optionsShop: [],
       dialogFormVisible: false,
       form: {
         classify: {
@@ -204,6 +238,7 @@ export default {
         // id: '',
         price: '',
         cover: '',
+        banner1: [],
         banner: '',
         name: ''
       },
@@ -220,8 +255,39 @@ export default {
   },
   created() {
     this.getList()
+    this.getShopList()
   },
   methods: {
+    uploadOverrun1: function() {
+      this.$message({
+        type: 'error',
+        message: '上传文件个数超出限制!最多上传5张图片!'
+      })
+    },
+    handleGalleryUrl1(response, file, fileList) {
+      if (response.code === 0) {
+        this.form.banner1.push(response.data)
+        this.form.banner = this.form.banner1.join(',')
+      }
+    },
+    handleRemove1: function(file, fileList) {
+      for (var i = 0; i < this.form.banner.length; i++) {
+        // 这里存在两种情况
+        // 1. 如果所删除图片是刚刚上传的图片，那么图片地址是file.response.data.url
+        //    此时的file.url虽然存在，但是是本机地址，而不是远程地址。
+        // 2. 如果所删除图片是后台返回的已有图片，那么图片地址是file.url
+        var url
+        if (file.response === undefined) {
+          url = file.url
+        } else {
+          url = file.response.data.url
+        }
+
+        if (this.form.banner[i].url === url) {
+          this.form.banner.splice(i, 1)
+        }
+      }
+    },
     // 文件上传
     uploadUrl: function(response) {
       console.log(response)
@@ -240,11 +306,37 @@ export default {
       }
       return true
     },
+    // select下拉门店
+    changeOrder(val) {
+      console.log(val)
+      if (val === 1) {
+        this.tableData = this.tableDataAll.filter((el) => el.store.id === 1)
+      } else if (val === 17) {
+        this.tableData = this.tableDataAll.filter((el) => el.store.id === 17)
+      } else if (val === 24) {
+        this.tableData = this.tableDataAll.filter((el) => el.store.id === 24)
+      } else if (val === 25) {
+        this.tableData = this.tableDataAll.filter((el) => el.store.id === 25)
+      } else if (val === '') {
+        this.tableData = this.tableDataAll
+      }
+    },
+    // 获取门店数据
+    getShopList() {
+      shopList()
+        .then((response) => {
+          this.optionsShop = response.data.data
+        })
+        .catch(() => {
+          this.optionsShop = []
+        })
+    },
     // 获取数据
     getList() {
       comboList({ name: this.name })
         .then((response) => {
           this.tableData = response.data.data
+          this.tableDataAll = response.data.data
         })
         .catch(() => {
           this.tableData = []

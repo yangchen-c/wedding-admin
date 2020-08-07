@@ -200,6 +200,14 @@ export function positionDelete(params) {
     params
   })
 }
+// yc考勤管理
+export function workList(params) {
+  return request({
+    url: 'attendance',
+    method: 'get',
+    params
+  })
+}
 // yc员工管理
 export function staffList(params) {
   return request({

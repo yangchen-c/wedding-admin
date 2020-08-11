@@ -47,8 +47,8 @@
           <el-input v-model="form.address" placeholder="请输入门店地址" style="width:400px" />
         </el-form-item>
         <el-form-item label="门店坐标" :label-width="formLabelWidth">
-          <el-input v-model="form.longitude" placeholder="请输入门店坐标" style="width:198px" />
-          <el-input v-model="form.longitude" placeholder="请输入门店坐标" style="width:198px" />
+          <el-input v-model="form.longitude" placeholder="请输入门店经度坐标" style="width:198px" />
+          <el-input v-model="form.latitude" placeholder="请输入门店纬度坐标" style="width:198px" />
         </el-form-item>
         <el-form-item label="门头图片" :label-width="formLabelWidth">
           <el-upload
@@ -110,6 +110,7 @@ export default {
         // desc: '',
         id: '',
         longitude: '',
+        latitude: '',
         sort: '',
         state: '',
         photo: ''
@@ -161,6 +162,7 @@ export default {
       this.form.phone = ''
       this.form.address = ''
       this.form.longitude = ''
+      this.form.latitude = ''
       this.form.sort = ''
       this.form.state = ''
       this.form.photo = ''
@@ -175,6 +177,7 @@ export default {
       this.form.phone = data.phone
       this.form.address = data.address
       this.form.longitude = data.longitude
+      this.form.latitude = data.latitude
       this.form.sort = data.sort
       this.form.state = data.state
       this.form.photo = data.photo

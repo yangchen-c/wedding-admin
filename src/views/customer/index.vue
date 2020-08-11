@@ -90,7 +90,7 @@
           <el-input v-model="form.name" placeholder="请输入姓名" style="width:200px" />
         </el-form-item>
         <el-form-item label="预约日期">
-          <el-date-picker v-model="form.subscribeTime" type="date" placeholder="选择日期" />
+          <el-date-picker v-model="form.subscribeTime" value-format="yyyy-MM-dd" type="date" placeholder="选择日期" />
         </el-form-item>
         <el-form-item label="选择客户顾问">
           <el-select v-model="form.customerConsultant.id" clearable placeholder="请选择">
@@ -114,7 +114,7 @@
           <el-input v-model="form.phone" placeholder="请输入电话" style="width:200px" />
         </el-form-item>
         <el-form-item label="拍摄日期">
-          <el-date-picker v-model="form.shootTime" type="date" placeholder="选择日期" />
+          <el-date-picker v-model="form.shootTime" value-format="yyyy-MM-dd" type="date" placeholder="选择日期" />
         </el-form-item>
         <el-form-item label="请选择摄影师">
           <el-select v-model="form.photographer.id" clearable placeholder="请选择">
@@ -138,7 +138,7 @@
           <el-input v-model="form.address" placeholder="请输入住址" style="width:200px" />
         </el-form-item>
         <el-form-item label="选片日期">
-          <el-date-picker v-model="form.selectTime" type="date" placeholder="选择日期" />
+          <el-date-picker v-model="form.selectTime" value-format="yyyy-MM-dd" type="date" placeholder="选择日期" />
         </el-form-item>
         <el-form-item label="请选择设计师">
           <el-select v-model="form.designer.id" clearable placeholder="请选择">
@@ -157,7 +157,12 @@
           <el-input v-model="form.networkService" placeholder="请输入网络通讯" style="width:200px" />
         </el-form-item>
         <el-form-item label="定稿日期">
-          <el-date-picker v-model="form.finalizeTime" type="date" placeholder="选择日期" />
+          <el-date-picker
+            v-model="form.finalizeTime"
+            value-format="yyyy-MM-dd"
+            type="date"
+            placeholder="选择日期"
+          />
         </el-form-item>
         <el-form-item label="请选择化妆师">
           <el-select v-model="form.dresser.id" clearable placeholder="请选择">
@@ -211,7 +216,12 @@
         </el-form-item>
         <el-form-item label="婚期">
           <label slot="label">婚&emsp;&emsp;期</label>
-          <el-date-picker v-model="form.weddingTime" type="date" placeholder="选择日期" />
+          <el-date-picker
+            v-model="form.weddingTime"
+            type="date"
+            value-format="yyyy-MM-dd"
+            placeholder="选择日期"
+          />
         </el-form-item>
         <el-form-item label="请选择助理二">
           <el-select v-model="form.secondAid.id" clearable placeholder="请选择">

@@ -1,6 +1,6 @@
 <template>
   <div class="dashboard-editor-container">
-    <h1>一元初始购物平台欢迎您！</h1>
+    <h1>唐山清鑫摄影</h1>
     <!-- <el-row :gutter="40" class="panel-group">
       <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
         <div class="card-panel" @click="handleSetLineChartData('newVisitis')">

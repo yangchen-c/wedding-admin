@@ -30,7 +30,7 @@
         <el-table-column align="center" prop="price" label="套餐价格" width="70" />
         <el-table-column align="center" prop="classify.paper" label="套餐小介绍" />
         <el-table-column align="center" prop="store.name" label="所属门店" />
-        <el-table-column align="center" prop="name" label="所属分类" />
+        <el-table-column align="center" prop="classify.name" label="所属分类" />
         <el-table-column align="center" prop="cover" label="封面图" width="200">
           <template slot-scope="scope">
             <img :src="scope.row.cover" alt style="width:50px;height:50px">
@@ -83,12 +83,12 @@
           </el-select>
         </el-form-item>
         <el-form-item label="所属分类" :label-width="formLabelWidth">
-          <el-select v-model="value3" clearable placeholder="选择分类">
+          <el-select v-model="form.classify.id" clearable placeholder="选择分类">
             <el-option
-              v-for="item in options3"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+              v-for="item in optionsCombo"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
             />
           </el-select>
         </el-form-item>
@@ -167,6 +167,7 @@
 
 <script>
 import {
+  comboClassifyList,
   shopList,
   comboList,
   comboAdd,
@@ -224,6 +225,7 @@ export default {
       // 表格数据
       tableData: [],
       optionsShop: [],
+      optionsCombo: [],
       dialogFormVisible: false,
       form: {
         classify: {
@@ -256,6 +258,7 @@ export default {
   created() {
     this.getList()
     this.getShopList()
+    this.getComboList()
   },
   methods: {
     uploadOverrun1: function() {
@@ -293,10 +296,10 @@ export default {
       console.log(response)
       this.form.cover = response.data
     },
-    uploadUrls: function(response) {
-      console.log(response)
-      this.form.banner = response.data
-    },
+    // uploadUrls: function(response) {
+    //   console.log(response)
+    //   this.form.banner = response.data
+    // },
     checkFileSize: function(file) {
       if (file.size > 1048576) {
         this.$message.error(
@@ -309,14 +312,8 @@ export default {
     // select下拉门店
     changeOrder(val) {
       console.log(val)
-      if (val === 1) {
-        this.tableData = this.tableDataAll.filter((el) => el.store.id === 1)
-      } else if (val === 17) {
-        this.tableData = this.tableDataAll.filter((el) => el.store.id === 17)
-      } else if (val === 24) {
-        this.tableData = this.tableDataAll.filter((el) => el.store.id === 24)
-      } else if (val === 25) {
-        this.tableData = this.tableDataAll.filter((el) => el.store.id === 25)
+      if (val !== '') {
+        this.tableData = this.tableDataAll.filter((el) => el.store.id === val)
       } else if (val === '') {
         this.tableData = this.tableDataAll
       }
@@ -329,6 +326,16 @@ export default {
         })
         .catch(() => {
           this.optionsShop = []
+        })
+    },
+    // 获取分类数据
+    getComboList() {
+      comboClassifyList()
+        .then((response) => {
+          this.optionsCombo = response.data.data
+        })
+        .catch(() => {
+          this.optionsCombo = []
         })
     },
     // 获取数据
@@ -353,6 +360,8 @@ export default {
       this.form.value3 = ''
       this.form.cover = ''
       this.form.classify.id = ''
+      this.form.store.id = ''
+      this.form.store.name = ''
     },
     // 编辑
     getEditData(data) {
@@ -361,11 +370,13 @@ export default {
       this.form.name = data.name
       this.form.price = data.price
       this.form.classify.paper = data.classify.paper
-      this.form.classify.id = data.id
+      this.form.classify.id = data.classify.id
       this.form.value = data.value
       this.form.value3 = data.value3
       this.form.cover = data.cover
       this.form.id = data.id
+      this.form.store.id = data.store.id
+      // this.form.store.name = data.store.name
     },
     // 编辑新增确定事件
     addSubmit() {

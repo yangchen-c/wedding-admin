@@ -51,9 +51,10 @@
           </template>
         </el-table-column>
         <el-table-column align="center" prop="deliveryTime" label="交付日期">
-          <!-- <template slot-scope="scope">
-            <span>{{ scope.row.deliveryTime }}</span>
-          </template>-->
+          <template slot-scope="scope">
+            <span v-if="scope.row.deliveryTime">{{ scope.row.deliveryTime }}</span>
+            <span v-if="!scope.row.deliveryTime">未定</span>
+          </template>
         </el-table-column>
         <el-table-column align="center" label="操作" width="550">
           <template slot-scope="scope">
@@ -90,7 +91,12 @@
           <el-input v-model="form.name" placeholder="请输入姓名" style="width:200px" />
         </el-form-item>
         <el-form-item label="预约日期">
-          <el-date-picker v-model="form.subscribeTime" value-format="yyyy-MM-dd" type="date" placeholder="选择日期" />
+          <el-date-picker
+            v-model="form.subscribeTime"
+            value-format="yyyy-MM-dd"
+            type="date"
+            placeholder="选择日期"
+          />
         </el-form-item>
         <el-form-item label="选择客户顾问">
           <el-select v-model="form.customerConsultant.id" clearable placeholder="请选择">
@@ -114,7 +120,12 @@
           <el-input v-model="form.phone" placeholder="请输入电话" style="width:200px" />
         </el-form-item>
         <el-form-item label="拍摄日期">
-          <el-date-picker v-model="form.shootTime" value-format="yyyy-MM-dd" type="date" placeholder="选择日期" />
+          <el-date-picker
+            v-model="form.shootTime"
+            value-format="yyyy-MM-dd"
+            type="date"
+            placeholder="选择日期"
+          />
         </el-form-item>
         <el-form-item label="请选择摄影师">
           <el-select v-model="form.photographer.id" clearable placeholder="请选择">
@@ -138,7 +149,12 @@
           <el-input v-model="form.address" placeholder="请输入住址" style="width:200px" />
         </el-form-item>
         <el-form-item label="选片日期">
-          <el-date-picker v-model="form.selectTime" value-format="yyyy-MM-dd" type="date" placeholder="选择日期" />
+          <el-date-picker
+            v-model="form.selectTime"
+            value-format="yyyy-MM-dd"
+            type="date"
+            placeholder="选择日期"
+          />
         </el-form-item>
         <el-form-item label="请选择设计师">
           <el-select v-model="form.designer.id" clearable placeholder="请选择">

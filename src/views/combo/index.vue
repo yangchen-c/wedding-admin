@@ -117,7 +117,7 @@
             multiple
             accept=".jpg, .jpeg, .png, .gif"
             list-type="picture-card"
-            :file-list="form.banner"
+            :file-list="form.banner1"
           >
             <i class="el-icon-plus" />
           </el-upload>
@@ -344,6 +344,16 @@ export default {
         .then((response) => {
           this.tableData = response.data.data
           this.tableDataAll = response.data.data
+          // const goods = response.data.data
+          // const banner = []
+          // this.tableData.banner.split(',').forEach((item) => {
+          //   const obj = {
+          //     name: item,
+          //     url: item
+          //   }
+          //   banner.push(obj)
+          // })
+          // console.log(banner)
         })
         .catch(() => {
           this.tableData = []
@@ -362,6 +372,7 @@ export default {
       this.form.classify.id = ''
       this.form.store.id = ''
       this.form.store.name = ''
+      this.form.banner = ''
     },
     // 编辑
     getEditData(data) {
@@ -376,7 +387,8 @@ export default {
       this.form.cover = data.cover
       this.form.id = data.id
       this.form.store.id = data.store.id
-      // this.form.store.name = data.store.name
+      this.form.banner = data.banner
+      console.log(this.form.banner)
     },
     // 编辑新增确定事件
     addSubmit() {

@@ -12,11 +12,11 @@ export function uploadFile(data) {
   })
 }
 // yc客户管理
-export function customerList(params) {
+export function customerList(params, params1) {
   return request({
-    url: 'customer',
+    url: `customer/getPaging/${params.page}/${params.size}`,
     method: 'get',
-    params
+    params: params1
   })
 }
 

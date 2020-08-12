@@ -22,7 +22,7 @@
       <el-date-picker v-model="value1" type="date" placeholder="请选择拍摄日期" />
       <el-input v-model="tel" placeholder="请输入手机号" clearable style="width:180px;margin-left:50px" />
       <el-input
-        v-model="name"
+        v-model="listQuery.name"
         placeholder="请输入客户名称"
         clearable
         style="width:180px"
@@ -81,6 +81,14 @@
           </template>
         </el-table-column>
       </el-table>
+      <!-- 分页 -->
+      <pagination
+        v-show="total>0"
+        :total="total"
+        :page.sync="listQuery.page"
+        :limit.sync="listQuery.limit"
+        @pagination="getList"
+      />
     </div>
     <!-- dialog弹出框 -->
     <el-dialog :title="title1" :visible.sync="dialogFormVisible" width="65%">
@@ -425,17 +433,25 @@ import {
   customerDelete
 } from '@/api/api'
 // import tableC from '@/components/Table/index'
+import Pagination from '@/components/Pagination' // Secondary package based on el-pagination
 
 export default {
   name: 'Customer',
 
-  components: {},
+  components: { Pagination },
   data() {
     return {
+      // 分页
+      total: 0,
+      listQuery: {
+        page: 1,
+        limit: 20,
+        name: ''
+      },
       btnLoading: false,
       dialogFormVisible: false,
       title1: '',
-      name: '',
+      // name: '',
       tel: '',
       value: '',
       valueState: '',
@@ -604,13 +620,18 @@ export default {
     },
     getList() {
       const params = {
-        name: this.name !== '' ? this.name : undefined
+        page: this.listQuery.page,
+        size: this.listQuery.limit
       }
-      // customerList({ name: this.name })
-      customerList(params)
+      const params1 = {
+        // name: this.name !== '' ? this.name : undefined
+        name: this.listQuery.name !== '' ? this.listQuery.name : undefined
+      }
+      customerList(params, params1)
         .then((response) => {
-          this.tableData = response.data.data
-          this.tableDataAll = response.data.data
+          this.tableData = response.data.data.currentList
+          this.tableDataAll = response.data.data.currentList
+          this.total = response.data.data.totalRecords
         })
         .catch(() => {
           this.tableData = []
